@@ -68,4 +68,8 @@ class WorkerFragment : Fragment(), SearchImageView {
         imageResultsCallbacks = null
         searchImagePresenter.onDetachView()
     }
+
+    fun loadNextPage() {
+        searchImagePresenter.loadNextPage()
+    }
 }

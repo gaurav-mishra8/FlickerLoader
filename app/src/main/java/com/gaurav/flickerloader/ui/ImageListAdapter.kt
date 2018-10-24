@@ -18,6 +18,8 @@ import com.gaurav.flickerloader.widget.PaginatedAdapter
 
 class ImageListAdapter(context: Context) : PaginatedAdapter<Photo>(context) {
 
+    val emptyPhoto = Photo()
+
     override fun onCreateItemViewHolder(viewGroup: ViewGroup, position: Int): RecyclerView.ViewHolder {
         val itemView = LayoutInflater.from(context).inflate(R.layout.item_view, viewGroup, false)
         return ImageItemViewHolder(itemView)
@@ -33,6 +35,10 @@ class ImageListAdapter(context: Context) : PaginatedAdapter<Photo>(context) {
         val currentSize = dataList.size
         dataList.addAll(list)
         notifyItemRangeInserted(currentSize, list.size)
+    }
+
+    override fun addLoadingViewFooter() {
+        addLoadingViewFooter(emptyPhoto)
     }
 
     class ImageItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {

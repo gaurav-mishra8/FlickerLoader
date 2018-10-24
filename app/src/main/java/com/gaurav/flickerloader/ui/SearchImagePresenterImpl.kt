@@ -3,15 +3,19 @@ package com.gaurav.flickerloader.ui
 import android.text.TextUtils
 import com.gaurav.flickerloader.data.DataCallback
 import com.gaurav.flickerloader.data.ImageRepository
-import com.gaurav.flickerloader.data.entity.Photo
+import com.gaurav.flickerloader.data.entity.PhotosResponse
 
 /**
  * Presenter class to interact with the repository and fetch results
  */
 class SearchImagePresenterImpl<T : SearchImageView>(private val repository: ImageRepository) : SearchImagePresenter<T>,
-    DataCallback<List<Photo>> {
+    DataCallback<PhotosResponse> {
 
     private var view: T? = null
+    private var queryTerm: String? = null
+    private var totalPages: Int = 0
+    private var currentPage: Int = 0
+    private var isLoading = false
 
     override fun onAttachView(view: T) {
         this.view = view
@@ -19,24 +23,46 @@ class SearchImagePresenterImpl<T : SearchImageView>(private val repository: Imag
 
     override fun searchImages(query: String?) {
         query?.let {
+            queryTerm = it
             view?.showLoading()
-            repository.getImages(it, this)
+            isLoading = true
+            repository.getImages(it, 0, this)
         }
     }
 
-    override fun onSuccess(response: List<Photo>) {
+    override fun loadNextPage() {
+
+        if (!isLoading && hasMoreData() && !TextUtils.isEmpty(queryTerm)) {
+            isLoading = true
+            repository.getImages(queryTerm!!, ++currentPage, this)
+        }
+    }
+
+    override fun onSuccess(response: PhotosResponse) {
         view?.hideLoading()
-        view?.setData(response)
+        isLoading = false
+
+        totalPages = response.photos?.pages ?: 0
+        currentPage = response.photos?.page ?: 0
+
+        val photoList = response.photos?.photoList
+        photoList?.let {
+            view?.setData(photoList)
+        } ?: view?.showError("Something went wrong")
     }
 
     override fun onError(errorMsg: String?) {
         view?.hideLoading()
+        isLoading = false
+
         if (TextUtils.isEmpty(errorMsg)) {
             view?.showError("Something went wrong")
         } else {
             view?.showError(errorMsg!!)
         }
     }
+
+    private fun hasMoreData(): Boolean = currentPage < totalPages
 
     override fun onDetachView() {
         view = null

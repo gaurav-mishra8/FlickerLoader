@@ -2,7 +2,6 @@ package com.gaurav.flickerloader.data
 
 import com.gaurav.flickerloader.Injection
 import com.gaurav.flickerloader.data.api.FlickerApi
-import com.gaurav.flickerloader.data.entity.Photo
 import com.gaurav.flickerloader.data.entity.PhotosResponse
 import retrofit2.Call
 import retrofit2.Callback
@@ -24,8 +23,8 @@ class RemoteDataSource(private val flickerApi: FlickerApi) : ImageRepository {
         }
     }
 
-    override fun getImages(query: String, callback: DataCallback<List<Photo>>) {
-        val call = flickerApi.getImageResults(query)
+    override fun getImages(query: String, pageNum: Int, callback: DataCallback<PhotosResponse>) {
+        val call = flickerApi.getImageResults(query, pageNum)
         call.enqueue(object : Callback<PhotosResponse> {
             override fun onFailure(call: Call<PhotosResponse>, t: Throwable) {
                 callback.onError(t.message)
@@ -33,12 +32,8 @@ class RemoteDataSource(private val flickerApi: FlickerApi) : ImageRepository {
 
             override fun onResponse(call: Call<PhotosResponse>, response: Response<PhotosResponse>) {
                 if (response.isSuccessful) {
-                    val photoList = response.body()?.photos?.photoList
-                    if (photoList != null) {
-                        callback.onSuccess(photoList)
-                    } else {
-                        callback.onError("Something went wrong")
-                    }
+                    val photoResponse = response.body()
+                    callback.onSuccess(photoResponse!!)
                 } else {
                     callback.onError(response.message())
                 }

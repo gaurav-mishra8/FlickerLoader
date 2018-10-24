@@ -8,10 +8,10 @@ data class PhotosResponse(
 )
 
 data class Photos(
-    val page: Int? = 0,
-    val pages: Int? = 0,
-    val perPage: Int? = 0,
-    val total: Int? = 0,
+    val page: Int = 0,
+    val pages: Int = 0,
+    val perPage: Int = 0,
+    val total: Int = 0,
     @SerializedName("photo") val photoList: List<Photo>? = null
 )
 

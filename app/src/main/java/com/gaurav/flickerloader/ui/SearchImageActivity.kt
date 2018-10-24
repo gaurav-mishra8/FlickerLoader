@@ -24,6 +24,8 @@ class SearchImageActivity : AppCompatActivity(), WorkerFragment.ImageResultsCall
     private val recyclerView by lazy { findViewById<RecyclerView>(R.id.recyclerView) }
     private val resultStatus by lazy { findViewById<TextView>(R.id.tvNoResults) }
 
+    private val LOAD_MORE_THRESHOLD = 3
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
@@ -62,6 +64,25 @@ class SearchImageActivity : AppCompatActivity(), WorkerFragment.ImageResultsCall
             layoutManager = gridLayoutManager
             adapter = listAdapter
             hasFixedSize()
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    val layoutManager = recyclerView.layoutManager as GridLayoutManager
+                    val lastItem = layoutManager.findLastCompletelyVisibleItemPosition()
+                    val currentTotalCount = layoutManager.itemCount
+
+                    if (currentTotalCount <= lastItem + LOAD_MORE_THRESHOLD) {
+                        recyclerView.post {
+                            listAdapter.addLoadingViewFooter()
+                        }
+                        workerFragment.loadNextPage()
+                    }
+                    super.onScrolled(recyclerView, dx, dy)
+                }
+
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    super.onScrollStateChanged(recyclerView, newState)
+                }
+            })
         }
     }
 
@@ -89,6 +110,9 @@ class SearchImageActivity : AppCompatActivity(), WorkerFragment.ImageResultsCall
     override fun showResults(list: List<Photo>) {
         progressBar.hide()
         recyclerView.show()
+        resultStatus.hide()
+
+        listAdapter.removeLoadingViewFooter()
         listAdapter.updateResult(list)
     }
 
@@ -96,6 +120,8 @@ class SearchImageActivity : AppCompatActivity(), WorkerFragment.ImageResultsCall
         progressBar.hide()
         recyclerView.hide()
         resultStatus.show()
+
         resultStatus.text = errorMsg
+        listAdapter.removeLoadingViewFooter()
     }
 }

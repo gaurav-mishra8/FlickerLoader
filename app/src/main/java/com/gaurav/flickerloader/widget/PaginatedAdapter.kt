@@ -31,18 +31,12 @@ abstract class PaginatedAdapter<T>(val context: Context) : RecyclerView.Adapter<
         }
 
     override fun getItemCount(): Int {
-        if (showLoading) {
-            return dataList.size + 1
-        }
         return dataList.size
     }
 
-    override fun getItemViewType(position: Int): Int {
-        if (position > dataList.size) {
-            return VIEW_FOOTER_TYPE
-        }
-        return VIEW_ITEM_TYPE
-    }
+    override fun getItemViewType(position: Int): Int =
+        if (position == dataList.size - 1 && showLoading) VIEW_FOOTER_TYPE else VIEW_ITEM_TYPE
+
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
@@ -54,8 +48,20 @@ abstract class PaginatedAdapter<T>(val context: Context) : RecyclerView.Adapter<
         }
     }
 
-    fun showLoading(showLoading: Boolean) {
-        this.showLoading = showLoading
+    fun removeLoadingViewFooter() {
+        if (showLoading && dataList.size > 0) {
+            showLoading = false
+            dataList.removeAt(dataList.size - 1)
+            notifyItemRemoved(dataList.size)
+        }
+    }
+
+    open fun addLoadingViewFooter(emptyDataObject: T) {
+        if (dataList.size > 0) {
+            showLoading = true
+            dataList.add(emptyDataObject)
+            notifyItemInserted(dataList.size - 1)
+        }
     }
 
     class FooterViewHolder(view: View) : RecyclerView.ViewHolder(view)
@@ -63,4 +69,6 @@ abstract class PaginatedAdapter<T>(val context: Context) : RecyclerView.Adapter<
     abstract fun onCreateItemViewHolder(viewGroup: ViewGroup, position: Int): RecyclerView.ViewHolder
 
     abstract fun onBindItemViewHolder(holder: RecyclerView.ViewHolder, position: Int)
+
+    abstract fun addLoadingViewFooter()
 }

@@ -1,6 +1,7 @@
 package com.gaurav.flickerloader.data
 
 import com.gaurav.flickerloader.data.entity.Photo
+import com.gaurav.flickerloader.data.entity.PhotosResponse
 
 class ImageRepositoryImpl(
     private val remoteDataSource: ImageRepository,
@@ -29,7 +30,7 @@ class ImageRepositoryImpl(
         }
     }
 
-    override fun getImages(query: String, callback: DataCallback<List<Photo>>) {
-        return remoteDataSource.getImages(query, callback)
+    override fun getImages(query: String, pageNum:Int,callback: DataCallback<PhotosResponse>) {
+        return remoteDataSource.getImages(query, pageNum,callback)
     }
 }

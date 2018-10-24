@@ -6,4 +6,6 @@ import com.gaurav.flickerloader.BaseMvpView
 interface SearchImagePresenter<T : BaseMvpView> : BaseMvpPresenter<T> {
 
     fun searchImages(query: String?)
+
+    fun loadNextPage()
 }

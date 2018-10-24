@@ -1,10 +1,10 @@
 package com.gaurav.flickerloader.data
 
-import com.gaurav.flickerloader.data.entity.Photo
+import com.gaurav.flickerloader.data.entity.PhotosResponse
 
 
 interface ImageRepository {
-    fun getImages(query: String, callback: DataCallback<List<Photo>>)
+    fun getImages(query: String, pageNum: Int = 0, callback: DataCallback<PhotosResponse>)
 }
 
 interface DataCallback<R> {
