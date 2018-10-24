@@ -1,16 +1,19 @@
 package com.gaurav.flickerloader.ui
 
+import android.app.Activity
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
+import android.view.inputmethod.InputMethodManager
 import android.widget.ProgressBar
 import android.widget.TextView
 import com.gaurav.flickerloader.R
 import com.gaurav.flickerloader.data.entity.Photo
 import com.gaurav.flickerloader.hide
 import com.gaurav.flickerloader.show
+
 
 class SearchImageActivity : AppCompatActivity(), WorkerFragment.ImageResultsCallbacks {
 
@@ -31,11 +34,13 @@ class SearchImageActivity : AppCompatActivity(), WorkerFragment.ImageResultsCall
     }
 
     private fun initFragments() {
-        val fragment = supportFragmentManager.findFragmentByTag(WorkerFragment.TAG)
+        var fragment = supportFragmentManager.findFragmentByTag(WorkerFragment.TAG)
         if (fragment == null) {
-            workerFragment = WorkerFragment.getInstance()
-            supportFragmentManager.beginTransaction().add(workerFragment, WorkerFragment.TAG).commitNow()
+            fragment = WorkerFragment.getInstance()
+            supportFragmentManager.beginTransaction().add(fragment, WorkerFragment.TAG).commitNow()
         }
+
+        workerFragment = fragment as WorkerFragment
     }
 
     private fun initSearchView() {
@@ -43,6 +48,7 @@ class SearchImageActivity : AppCompatActivity(), WorkerFragment.ImageResultsCall
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(p0: String?): Boolean {
                 workerFragment.searchImages(p0)
+                hideKeyboard()
                 return true
             }
 
@@ -55,20 +61,23 @@ class SearchImageActivity : AppCompatActivity(), WorkerFragment.ImageResultsCall
             val gridLayoutManager = provideGridLayoutManager()
             layoutManager = gridLayoutManager
             adapter = listAdapter
+            hasFixedSize()
         }
     }
 
     private fun provideGridLayoutManager(): GridLayoutManager {
-        val gridLayoutManager = GridLayoutManager(this@SearchImageActivity, 3, GridLayoutManager.VERTICAL, false)
-        gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-            override fun getSpanSize(pos: Int): Int {
-                if (pos > listAdapter.itemCount) {
-                    return 1
-                }
-                return 3
-            }
-        }
+        val gridLayoutManager = GridLayoutManager(
+            this@SearchImageActivity,
+            resources.getInteger(R.integer.span_size),
+            GridLayoutManager.VERTICAL,
+            false
+        )
         return gridLayoutManager
+    }
+
+    private fun hideKeyboard() {
+        val imm = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
     }
 
     override fun onStartLoading() {
