@@ -1,28 +1,71 @@
 package com.gaurav.flickerloader.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import com.gaurav.flickerloader.BaseView
 import com.gaurav.flickerloader.Injection
+import com.gaurav.flickerloader.data.entity.Photo
 
-class WorkerFragment : Fragment(), BaseView {
+/**
+ * Worker fragment to interact with repository and get image search results
+ */
+class WorkerFragment : Fragment(), SearchImageView {
 
-    private lateinit var mainPresenter: MainActivityPresenter<BaseView>
+    internal interface ImageResultsCallbacks {
+        fun onStartLoading()
+        fun onError(errorMsg: String)
+        fun showResults(list: List<Photo>)
+    }
+
+    companion object {
+        const val TAG = "WorkerFragment"
+        fun getInstance(): WorkerFragment = WorkerFragment()
+    }
+
+    private var imageResultsCallbacks: ImageResultsCallbacks? = null
+    private lateinit var searchImagePresenter: SearchImagePresenterImpl<SearchImageView>
+
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+
+        if (context is ImageResultsCallbacks) {
+            imageResultsCallbacks = context
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         retainInstance = true
-
         initPresenter()
     }
 
     private fun initPresenter() {
-        mainPresenter = MainActivityPresenter(Injection.provideImageRepository(activity!!.applicationContext))
-        mainPresenter.onAttach(this)
+        searchImagePresenter = SearchImagePresenterImpl(Injection.provideImageRepository(activity!!.applicationContext))
+        searchImagePresenter.onAttachView(this)
+    }
+
+    fun searchImages(query: String?) {
+        searchImagePresenter.searchImages(query)
+    }
+
+    override fun setData(imageResults: List<Photo>) {
+        imageResultsCallbacks?.showResults(imageResults)
+    }
+
+    override fun showLoading() {
+        imageResultsCallbacks?.onStartLoading()
+    }
+
+    override fun hideLoading() {
+    }
+
+    override fun showError(errorMsg: String) {
+        imageResultsCallbacks?.onError(errorMsg)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mainPresenter.onDetach()
+        imageResultsCallbacks = null
+        searchImagePresenter.onDetachView()
     }
 }

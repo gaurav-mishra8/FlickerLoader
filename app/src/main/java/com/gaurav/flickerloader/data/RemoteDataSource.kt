@@ -1,12 +1,14 @@
 package com.gaurav.flickerloader.data
 
 import com.gaurav.flickerloader.Injection
-import com.gaurav.flickerloader.data.apiservice.ApiService
-import com.gaurav.flickerloader.ui.Result
-import com.gaurav.flickerloader.ui.ResultError
-import com.gaurav.flickerloader.ui.ResultSuccess
+import com.gaurav.flickerloader.data.api.FlickerApi
+import com.gaurav.flickerloader.data.entity.Photo
+import com.gaurav.flickerloader.data.entity.PhotosResponse
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
-class RemoteDataSource(private val apiService: ApiService) : ImageRepository {
+class RemoteDataSource(private val flickerApi: FlickerApi) : ImageRepository {
 
     companion object {
 
@@ -15,19 +17,32 @@ class RemoteDataSource(private val apiService: ApiService) : ImageRepository {
 
         fun getInstance(): RemoteDataSource {
             return INSTANCE ?: synchronized(RemoteDataSource::class.java) {
-                INSTANCE ?: return RemoteDataSource(Injection.provideApiService()).also {
+                INSTANCE ?: return RemoteDataSource(Injection.provideFlickerApi()).also {
                     INSTANCE = it
                 }
             }
         }
     }
 
-    override fun getImages(query: String): Result {
-        val response = apiService.fetchSearchResults(query)
-        if (response != null) {
-            return ResultSuccess(response)
-        } else {
-            return ResultError(Exception("Something went wrong"))
-        }
+    override fun getImages(query: String, callback: DataCallback<List<Photo>>) {
+        val call = flickerApi.getImageResults(query)
+        call.enqueue(object : Callback<PhotosResponse> {
+            override fun onFailure(call: Call<PhotosResponse>, t: Throwable) {
+                callback.onError(t.message)
+            }
+
+            override fun onResponse(call: Call<PhotosResponse>, response: Response<PhotosResponse>) {
+                if (response.isSuccessful) {
+                    val photoList = response.body()?.photos?.photoList
+                    if (photoList != null) {
+                        callback.onSuccess(photoList)
+                    } else {
+                        callback.onError("Something went wrong")
+                    }
+                } else {
+                    callback.onError(response.message())
+                }
+            }
+        })
     }
 }

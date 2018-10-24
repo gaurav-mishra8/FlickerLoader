@@ -1,6 +1,6 @@
 package com.gaurav.flickerloader.data
 
-import com.gaurav.flickerloader.ui.Result
+import com.gaurav.flickerloader.data.entity.Photo
 
 class LocalDataSource : ImageRepository {
 
@@ -17,7 +17,7 @@ class LocalDataSource : ImageRepository {
         }
     }
 
-    override fun getImages(query: String): Result {
-        throw UnsupportedOperationException("Fetching images not supported for LocalDataSource")
+    override fun getImages(query: String, callback: DataCallback<List<Photo>>) {
+        throw UnsupportedOperationException()
     }
 }
