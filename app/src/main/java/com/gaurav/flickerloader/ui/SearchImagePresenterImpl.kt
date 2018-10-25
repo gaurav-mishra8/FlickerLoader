@@ -1,6 +1,5 @@
 package com.gaurav.flickerloader.ui
 
-import android.text.TextUtils
 import com.gaurav.flickerloader.data.DataCallback
 import com.gaurav.flickerloader.data.ImageRepository
 import com.gaurav.flickerloader.data.entity.PhotosResponse
@@ -9,7 +8,7 @@ import com.gaurav.flickerloader.data.entity.PhotosResponse
  * Presenter class to interact with the repository and fetch results
  */
 class SearchImagePresenterImpl<T : SearchImageView>(private val repository: ImageRepository) : SearchImagePresenter<T>,
-    DataCallback<PhotosResponse> {
+    DataCallback {
 
     private var view: T? = null
     private var queryTerm: String? = null
@@ -32,9 +31,11 @@ class SearchImagePresenterImpl<T : SearchImageView>(private val repository: Imag
 
     override fun loadNextPage() {
 
-        if (!isLoading && hasMoreData() && !TextUtils.isEmpty(queryTerm)) {
-            isLoading = true
-            repository.getImages(queryTerm!!, ++currentPage, this)
+        if (!isLoading && hasMoreData()) {
+            queryTerm?.let {
+                isLoading = true
+                repository.getImages(queryTerm!!, ++currentPage, this)
+            }
         }
     }
 
@@ -55,7 +56,7 @@ class SearchImagePresenterImpl<T : SearchImageView>(private val repository: Imag
         view?.hideLoading()
         isLoading = false
 
-        if (TextUtils.isEmpty(errorMsg)) {
+        if (errorMsg == null || errorMsg.isEmpty()) {
             view?.showError("Something went wrong")
         } else {
             view?.showError(errorMsg!!)

@@ -26,7 +26,7 @@ class SearchImageActivity : AppCompatActivity(), WorkerFragment.ImageResultsCall
     private val recyclerView by lazy { findViewById<RecyclerView>(R.id.recyclerView) }
     private val resultStatus by lazy { findViewById<TextView>(R.id.tvNoResults) }
 
-    private val LOAD_MORE_THRESHOLD = 3
+    private val LOAD_MORE_THRESHOLD = 6
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

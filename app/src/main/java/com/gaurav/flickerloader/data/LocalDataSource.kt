@@ -17,7 +17,7 @@ class LocalDataSource : ImageRepository {
         }
     }
 
-    override fun getImages(query: String, pageNum: Int, callback: DataCallback<PhotosResponse>) {
+    override fun getImages(query: String, pageNum: Int, callback: DataCallback) {
         throw UnsupportedOperationException()
     }
 }

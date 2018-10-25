@@ -23,7 +23,7 @@ class RemoteDataSource(private val flickerApi: FlickerApi) : ImageRepository {
         }
     }
 
-    override fun getImages(query: String, pageNum: Int, callback: DataCallback<PhotosResponse>) {
+    override fun getImages(query: String, pageNum: Int, callback: DataCallback) {
         val call = flickerApi.getImageResults(query, pageNum)
         call.enqueue(object : Callback<PhotosResponse> {
             override fun onFailure(call: Call<PhotosResponse>, t: Throwable) {
