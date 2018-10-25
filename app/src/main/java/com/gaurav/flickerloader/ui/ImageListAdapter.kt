@@ -20,7 +20,7 @@ class ImageListAdapter(context: Context) : PaginatedAdapter<Photo>(context) {
 
     val emptyPhoto = Photo()
 
-    override fun onCreateItemViewHolder(viewGroup: ViewGroup, position: Int): RecyclerView.ViewHolder {
+    override fun onCreateItemViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val itemView = LayoutInflater.from(context).inflate(R.layout.item_view, viewGroup, false)
         return ImageItemViewHolder(itemView)
     }

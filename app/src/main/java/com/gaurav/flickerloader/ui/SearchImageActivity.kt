@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
+import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -13,6 +14,7 @@ import com.gaurav.flickerloader.R
 import com.gaurav.flickerloader.data.entity.Photo
 import com.gaurav.flickerloader.hide
 import com.gaurav.flickerloader.show
+import com.gaurav.flickerloader.widget.PaginatedAdapter.Companion.VIEW_ITEM_TYPE
 
 
 class SearchImageActivity : AppCompatActivity(), WorkerFragment.ImageResultsCallbacks {
@@ -61,8 +63,8 @@ class SearchImageActivity : AppCompatActivity(), WorkerFragment.ImageResultsCall
     private fun initRecyclerView() {
         recyclerView?.apply {
             val gridLayoutManager = provideGridLayoutManager()
-            layoutManager = gridLayoutManager
             adapter = listAdapter
+            layoutManager = gridLayoutManager
             hasFixedSize()
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -73,8 +75,8 @@ class SearchImageActivity : AppCompatActivity(), WorkerFragment.ImageResultsCall
                     if (currentTotalCount <= lastItem + LOAD_MORE_THRESHOLD) {
                         recyclerView.post {
                             listAdapter.addLoadingViewFooter()
+                            workerFragment.loadNextPage()
                         }
-                        workerFragment.loadNextPage()
                     }
                     super.onScrolled(recyclerView, dx, dy)
                 }
@@ -87,18 +89,31 @@ class SearchImageActivity : AppCompatActivity(), WorkerFragment.ImageResultsCall
     }
 
     private fun provideGridLayoutManager(): GridLayoutManager {
+        val spanCount = resources.getInteger(R.integer.span_size)
+
         val gridLayoutManager = GridLayoutManager(
             this@SearchImageActivity,
-            resources.getInteger(R.integer.span_size),
-            GridLayoutManager.VERTICAL,
-            false
+            spanCount
         )
+
+        gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                val viewType = listAdapter.getItemViewType(position)
+                if (viewType == VIEW_ITEM_TYPE) {
+                    return 1
+                } else {
+                    Log.d("gaurav", "footer item hence span 3")
+                    return 3
+                }
+            }
+        };
+
         return gridLayoutManager
     }
 
     private fun hideKeyboard() {
         val imm = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
+        imm.hideSoftInputFromWindow(searchView.windowToken, 0);
     }
 
     override fun onStartLoading() {

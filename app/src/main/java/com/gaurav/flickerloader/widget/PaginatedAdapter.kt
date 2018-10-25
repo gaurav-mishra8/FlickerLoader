@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import com.gaurav.flickerloader.R
 
 abstract class PaginatedAdapter<T>(val context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -12,14 +13,17 @@ abstract class PaginatedAdapter<T>(val context: Context) : RecyclerView.Adapter<
     protected val dataList = mutableListOf<T>()
     private var showLoading = false
 
-    val VIEW_ITEM_TYPE = 0
-    val VIEW_FOOTER_TYPE = 1
+    companion object {
+        const val VIEW_ITEM_TYPE = 0
+        const val VIEW_FOOTER_TYPE = 1
+    }
 
-    override fun onCreateViewHolder(viewGroup: ViewGroup, position: Int): RecyclerView.ViewHolder =
 
-        when (getItemViewType(position)) {
+    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
+
+        when (viewType) {
             VIEW_ITEM_TYPE -> {
-                onCreateItemViewHolder(viewGroup, position)
+                onCreateItemViewHolder(viewGroup, viewType)
             }
             VIEW_FOOTER_TYPE -> {
                 val footerView = LayoutInflater.from(context).inflate(R.layout.footer_view, viewGroup, false)
@@ -34,18 +38,13 @@ abstract class PaginatedAdapter<T>(val context: Context) : RecyclerView.Adapter<
         return dataList.size
     }
 
-    override fun getItemViewType(position: Int): Int =
-        if (position == dataList.size - 1 && showLoading) VIEW_FOOTER_TYPE else VIEW_ITEM_TYPE
+    override fun getItemViewType(position: Int): Int {
+        return if (position == dataList.size - 1 && showLoading) VIEW_FOOTER_TYPE else VIEW_ITEM_TYPE
+    }
 
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (holder) {
-            is FooterViewHolder -> {
-            }
-            else -> {
-                onBindItemViewHolder(holder, position)
-            }
-        }
+        if (getItemViewType(position) != VIEW_FOOTER_TYPE) onBindItemViewHolder(holder, position)
     }
 
     fun removeLoadingViewFooter() {
@@ -57,16 +56,18 @@ abstract class PaginatedAdapter<T>(val context: Context) : RecyclerView.Adapter<
     }
 
     open fun addLoadingViewFooter(emptyDataObject: T) {
-        if (dataList.size > 0) {
+        if (dataList.size > 0 && !showLoading) {
             showLoading = true
             dataList.add(emptyDataObject)
-            notifyItemInserted(dataList.size - 1)
+            notifyItemChanged(dataList.size - 1)
         }
     }
 
-    class FooterViewHolder(view: View) : RecyclerView.ViewHolder(view)
+    class FooterViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val progressBar = itemView.findViewById<ProgressBar>(R.id.progressBar)
+    }
 
-    abstract fun onCreateItemViewHolder(viewGroup: ViewGroup, position: Int): RecyclerView.ViewHolder
+    abstract fun onCreateItemViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder
 
     abstract fun onBindItemViewHolder(holder: RecyclerView.ViewHolder, position: Int)
 
