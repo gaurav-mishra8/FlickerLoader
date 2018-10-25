@@ -5,7 +5,6 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
 import com.gaurav.flickerloader.R
 
 abstract class PaginatedAdapter<T>(val context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -63,9 +62,7 @@ abstract class PaginatedAdapter<T>(val context: Context) : RecyclerView.Adapter<
         }
     }
 
-    class FooterViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val progressBar = itemView.findViewById<ProgressBar>(R.id.progressBar)
-    }
+    class FooterViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
     abstract fun onCreateItemViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder
 

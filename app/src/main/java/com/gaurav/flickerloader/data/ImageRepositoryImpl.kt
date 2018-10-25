@@ -1,7 +1,5 @@
 package com.gaurav.flickerloader.data
 
-import com.gaurav.flickerloader.data.entity.PhotosResponse
-
 class ImageRepositoryImpl(
     private val remoteDataSource: ImageRepository,
     private val localDataSource: ImageRepository
