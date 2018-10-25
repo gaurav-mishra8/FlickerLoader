@@ -102,7 +102,6 @@ class SearchImageActivity : AppCompatActivity(), WorkerFragment.ImageResultsCall
                 if (viewType == VIEW_ITEM_TYPE) {
                     return 1
                 } else {
-                    Log.d("gaurav", "footer item hence span 3")
                     return 3
                 }
             }

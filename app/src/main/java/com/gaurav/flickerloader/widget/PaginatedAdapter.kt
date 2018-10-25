@@ -30,7 +30,7 @@ abstract class PaginatedAdapter<T>(val context: Context) : RecyclerView.Adapter<
                 FooterViewHolder(footerView)
             }
             else -> {
-                throw IllegalArgumentException("Unnknown view type")
+                throw IllegalArgumentException("Unknown view type")
             }
         }
 
