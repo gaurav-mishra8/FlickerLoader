@@ -4,6 +4,9 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
+apply from: "$project.rootDir/tools/checkstyle.gradle"
+apply from: "$project.rootDir/tools/findbugs.gradle"
+
 android {
     compileSdkVersion rootProject.ext.androidCompileSdkVersion
     defaultConfig {
